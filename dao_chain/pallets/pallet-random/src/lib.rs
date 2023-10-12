@@ -19,7 +19,10 @@ pub use weights::*;
 #[frame_support::pallet]
 pub mod pallet {
 	use super::*;
-	use frame_support::pallet_prelude::*;
+	use frame_support::{
+		dispatch::Vec,
+		pallet_prelude::{OptionQuery, *},
+	};
 	use frame_system::pallet_prelude::*;
 
 	#[pallet::pallet]
@@ -34,19 +37,29 @@ pub mod pallet {
 		type WeightInfo: WeightInfo;
 	}
 
-	// The pallet's runtime storage items.
-	// https://docs.substrate.io/main-docs/build/runtime-storage/
+	#[pallet::hooks]
+	impl<T: Config> Hooks<BlockNumberFor<T>> for Pallet<T> {
+		fn on_initialize(_block_number: BlockNumberFor<T>) -> Weight {
+			let hash = <frame_system::Pallet<T>>::parent_hash();
+
+			<Random<T>>::insert(hash, ());
+
+			T::DbWeight::get().reads_writes(1, 1)
+		}
+	}
+
 	#[pallet::storage]
-	#[pallet::getter(fn something)]
-	// Learn more about declaring storage items:
-	// https://docs.substrate.io/main-docs/build/runtime-storage/#declaring-storage-items
-	pub type Something<T> = StorageValue<_, u32>;
+	#[pallet::getter(fn random_material)]
+	pub(super) type Random<T: Config> = StorageMap<_, Blake2_128Concat, T::Hash, (), OptionQuery>;
 
 	// Pallets use events to inform users when important changes are made.
 	// https://docs.substrate.io/main-docs/build/events-errors/
 	#[pallet::event]
 	#[pallet::generate_deposit(pub(super) fn deposit_event)]
-	pub enum Event<T: Config> {}
+	pub enum Event<T: Config> {
+		/// Random no. generated
+		RandomNumberGenerated { hash: Vec<T::Hash> },
+	}
 
 	// Errors inform users that something went wrong.
 	#[pallet::error]
@@ -59,8 +72,11 @@ pub mod pallet {
 	impl<T: Config> Pallet<T> {
 		/// Generate random number.
 		#[pallet::call_index(0)]
-		#[pallet::weight(T::WeightInfo::do_something())]
+		#[pallet::weight(T::WeightInfo::generate_random())]
 		pub fn generate_random(origin: OriginFor<T>) -> DispatchResult {
+			let _ = ensure_signed(origin)?;
+			let random_num: Vec<T::Hash> = Random::<T>::iter_keys().collect();
+			Self::deposit_event(Event::RandomNumberGenerated { hash: random_num });
 			Ok(())
 		}
 	}
