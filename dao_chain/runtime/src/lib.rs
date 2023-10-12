@@ -275,6 +275,12 @@ impl pallet_sudo::Config for Runtime {
 impl pallet_dao::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
 	type WeightInfo = pallet_dao::weights::SubstrateWeight<Runtime>;
+	type MinLength = ConstU32<8>;
+	type MaxDaoNameLength = ConstU32<64>;
+	type MaxLengthMetadata = ConstU32<1024>;
+	type AssetId = u32;
+	type Currency = Balances;
+	type DaoDeposit = ConstU128<10000000>;
 }
 
 /// Configure the pallet-random in pallets/pallet-random.

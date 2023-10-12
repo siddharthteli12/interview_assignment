@@ -46,8 +46,7 @@ pub mod pallet {
 	// https://docs.substrate.io/main-docs/build/events-errors/
 	#[pallet::event]
 	#[pallet::generate_deposit(pub(super) fn deposit_event)]
-	pub enum Event<T: Config> {
-	}
+	pub enum Event<T: Config> {}
 
 	// Errors inform users that something went wrong.
 	#[pallet::error]
