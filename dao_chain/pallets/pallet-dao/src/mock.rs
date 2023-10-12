@@ -13,7 +13,7 @@ frame_support::construct_runtime!(
 	pub enum Test
 	{
 		System: frame_system,
-		TemplateModule: pallet_template,
+		Dao: pallet_dao,
 	}
 );
 
@@ -43,9 +43,15 @@ impl frame_system::Config for Test {
 	type MaxConsumers = frame_support::traits::ConstU32<16>;
 }
 
-impl pallet_template::Config for Test {
+impl pallet_dao::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
 	type WeightInfo = ();
+	type MinLength = ConstU32<8>;
+	type MaxDaoNameLength = ConstU32<64>;
+	type MaxLengthMetadata = ConstU32<1024>;
+	type AssetId = u32;
+	type Currency = Balances;
+	type DaoDeposit = ConstU128<10000000>;
 }
 
 // Build genesis storage according to the mock runtime.

@@ -119,7 +119,7 @@ pub mod pallet {
 	impl<T: Config> Pallet<T> {
 		/// Create New Dao for caller.
 		#[pallet::call_index(0)]
-		#[pallet::weight(T::WeightInfo::do_something())]
+		#[pallet::weight(T::WeightInfo::create_dao())]
 		pub fn create_dao(
 			origin: OriginFor<T>,
 			dao_name: Vec<u8>,
@@ -162,29 +162,38 @@ pub mod pallet {
 
 		/// Delete existing dao if caller is owner.
 		#[pallet::call_index(1)]
-		#[pallet::weight(T::WeightInfo::do_something())]
-		pub fn delete_dao(origin: OriginFor<T>) -> DispatchResult {
+		#[pallet::weight(T::WeightInfo::delete_dao())]
+		pub fn delete_dao(origin: OriginFor<T>, dao_id: u128) -> DispatchResult {
+			let sender = ensure_signed(origin)?;
+			let dao = Daos::<T>::get(dao_id).unwrap();
+			ensure!(dao.owner == sender, Error::<T>::DaoSignerNotOwner);
+			<T as Config>::Currency::unreserve(&sender, <T as Config>::DaoDeposit::get());
+			Self::deposit_event(Event::DaoBurned { dao_id: dao.id.clone() });
+			<Daos<T>>::remove(&dao.id);
 			Ok(())
 		}
 
 		/// Delete existing dao if caller is owner.
 		#[pallet::call_index(2)]
-		#[pallet::weight(T::WeightInfo::do_something())]
-		pub fn transfer_dao_ownership(origin: OriginFor<T>) -> DispatchResult {
-			Ok(())
-		}
-
-		/// Issue token to new participant, can only be called by dao owner.
-		#[pallet::call_index(3)]
-		#[pallet::weight(T::WeightInfo::do_something())]
-		pub fn issue_token(origin: OriginFor<T>) -> DispatchResult {
-			Ok(())
-		}
-
-		/// Update Dao info.
-		#[pallet::call_index(4)]
-		#[pallet::weight(T::WeightInfo::do_something())]
-		pub fn update_dao_info(origin: OriginFor<T>) -> DispatchResult {
+		#[pallet::weight(T::WeightInfo::transfer_dao_ownership())]
+		pub fn transfer_dao_ownership(
+			origin: OriginFor<T>,
+			dao_id: u128,
+			to_account: AccountIdOf<T>,
+		) -> DispatchResult {
+			let sender = ensure_signed(origin)?;
+			let dao = Daos::<T>::get(dao_id).unwrap();
+			ensure!(dao.owner == sender, Error::<T>::DaoSignerNotOwner);
+			<T as Config>::Currency::unreserve(&sender, <T as Config>::DaoDeposit::get());
+			<T as Config>::Currency::unreserve(&to_account, <T as Config>::DaoDeposit::get());
+			Daos::<T>::mutate(dao_id, |dao_info| {
+				let dao_info = dao_info.as_mut().unwrap();
+				dao_info.owner = to_account.clone();
+			});
+			Self::deposit_event(Event::DaoOwnerChanged {
+				dao_id: dao.id.clone(),
+				new_owner: to_account,
+			});
 			Ok(())
 		}
 	}
