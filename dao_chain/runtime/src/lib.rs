@@ -49,6 +49,9 @@ pub use sp_runtime::{Perbill, Permill};
 /// Import the dao pallet.
 pub use pallet_dao;
 
+/// Import the random pallet.
+pub use pallet_random;
+
 /// An index to a block.
 pub type BlockNumber = u32;
 
@@ -274,6 +277,12 @@ impl pallet_dao::Config for Runtime {
 	type WeightInfo = pallet_dao::weights::SubstrateWeight<Runtime>;
 }
 
+/// Configure the pallet-random in pallets/pallet-random.
+impl pallet_random::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type WeightInfo = pallet_random::weights::SubstrateWeight<Runtime>;
+}
+
 // Create the runtime by composing the FRAME pallets that were previously configured.
 construct_runtime!(
 	pub struct Runtime {
@@ -286,6 +295,7 @@ construct_runtime!(
 		Sudo: pallet_sudo,
 		// Include the custom logic from the pallet-dao in the runtime.
 		DAO: pallet_dao,
+		Random: pallet_random,
 	}
 );
 
@@ -334,6 +344,7 @@ mod benches {
 		[pallet_timestamp, Timestamp]
 		[pallet_sudo, Sudo]
 		[pallet_dao, DAO]
+		[pallet_random, Random]
 	);
 }
 
