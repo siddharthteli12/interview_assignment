@@ -7,48 +7,37 @@ pub fn arithmetic_parser(value_str: String) -> u64 {
         if value_chars[index].is_alphabetic() {
             match value_chars[index] {
                 'f' => loop {
-                    let last_operator = operator_stack.pop().unwrap();
-                    if last_operator == 'e' {
+                    let operator = operator_stack.pop().unwrap();
+                    if operator == 'e' {
                         break;
                     }
                     let num1 = operand_stack.pop().unwrap();
                     let num2 = operand_stack.pop().unwrap();
-                    let result = perform_operation(num2, num1, last_operator);
+                    let result = perform_operation(num2, num1, operator);
                     operand_stack.push(result);
-                    index += 1;
                 },
-                'e' => {
-                    operator_stack.push(value_chars[index]);
-                    index += 1;
-                }
                 value => {
-                    if operator_stack.is_empty() {
+                    if value == 'e'
+                        || operator_stack.is_empty()
+                        || *operator_stack.last().unwrap() == 'e'
+                    {
                         operator_stack.push(value_chars[index]);
-                        index += 1;
                     } else {
-                        // Pop till stack is empty or ( is readched.
-                        if *operator_stack.last().unwrap() == 'e' {
-                            operator_stack.push(value_chars[index]);
-                            index += 1;
-                        } else {
-                            loop {
-                                let last_operator = operator_stack.pop().unwrap();
-                                let num1 = operand_stack.pop().unwrap();
-                                let num2 = operand_stack.pop().unwrap();
-                                let result = perform_operation(num2, num1, last_operator);
-                                operand_stack.push(result);
-                                index += 1;
-                                if operator_stack.is_empty()
-                                    || *operator_stack.last().unwrap() == 'e'
-                                {
-                                    operator_stack.push(value);
-                                    break;
-                                }
+                        loop {
+                            let operator = operator_stack.pop().unwrap();
+                            let num1 = operand_stack.pop().unwrap();
+                            let num2 = operand_stack.pop().unwrap();
+                            let result = perform_operation(num2, num1, operator);
+                            operand_stack.push(result);
+                            if operator_stack.is_empty() || *operator_stack.last().unwrap() == 'e' {
+                                operator_stack.push(value);
+                                break;
                             }
                         }
                     }
                 }
             };
+            index += 1;
         } else {
             let mut temp_index = index + 1;
             while temp_index < value_chars.len() && value_chars[temp_index].is_numeric() {
@@ -59,10 +48,10 @@ pub fn arithmetic_parser(value_str: String) -> u64 {
         }
     }
 
-    while let Some(last_operator) = operator_stack.pop() {
+    while let Some(operator) = operator_stack.pop() {
         let num1 = operand_stack.pop().unwrap();
         let num2 = operand_stack.pop().unwrap();
-        let result = perform_operation(num2, num1, last_operator);
+        let result = perform_operation(num2, num1, operator);
         operand_stack.push(result);
     }
 
