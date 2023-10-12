@@ -21,19 +21,14 @@ pub fn arithmetic_parser(value_str: String) -> u64 {
                         || operator_stack.is_empty()
                         || *operator_stack.last().unwrap() == 'e'
                     {
-                        operator_stack.push(value_chars[index]);
+                        operator_stack.push(value);
                     } else {
-                        loop {
-                            let operator = operator_stack.pop().unwrap();
-                            let num1 = operand_stack.pop().unwrap();
-                            let num2 = operand_stack.pop().unwrap();
-                            let result = perform_operation(num2, num1, operator);
-                            operand_stack.push(result);
-                            if operator_stack.is_empty() || *operator_stack.last().unwrap() == 'e' {
-                                operator_stack.push(value);
-                                break;
-                            }
-                        }
+                        let operator = operator_stack.pop().unwrap();
+                        let num1 = operand_stack.pop().unwrap();
+                        let num2 = operand_stack.pop().unwrap();
+                        let result = perform_operation(num2, num1, operator);
+                        operand_stack.push(result);
+                        operator_stack.push(value);
                     }
                 }
             };
@@ -47,8 +42,7 @@ pub fn arithmetic_parser(value_str: String) -> u64 {
             index = temp_index;
         }
     }
-
-    while let Some(operator) = operator_stack.pop() {
+    if let Some(operator) = operator_stack.pop() {
         let num1 = operand_stack.pop().unwrap();
         let num2 = operand_stack.pop().unwrap();
         let result = perform_operation(num2, num1, operator);
