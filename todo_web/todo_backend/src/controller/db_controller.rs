@@ -6,6 +6,7 @@ async fn home() -> impl Responder {
     HttpResponse::Ok().body("Welcome to home")
 }
 
+// End point for creating new user.
 #[post("/create_user")]
 async fn create_user(db: web::Data<AppState>, user_info: web::Query<CreateUser>) -> impl Responder {
     match create_user_in_db(&db.db, user_info.into_inner()).await {
@@ -15,6 +16,7 @@ async fn create_user(db: web::Data<AppState>, user_info: web::Query<CreateUser>)
     }
 }
 
+// End point for getting task info for a given task id.
 #[get("/read_task/{task_id}")]
 async fn read_task(db: web::Data<AppState>, path: web::Path<TaskId>) -> impl Responder {
     let task_id = path.into_inner();
@@ -25,6 +27,7 @@ async fn read_task(db: web::Data<AppState>, path: web::Path<TaskId>) -> impl Res
     }
 }
 
+// End point for creating new task.
 #[post("/create_task")]
 async fn create_task(
     db: web::Data<AppState>,
@@ -37,6 +40,7 @@ async fn create_task(
     }
 }
 
+// End point for updating exisitng task info for a given task id.
 #[put("/update_task")]
 async fn update_task(
     db: web::Data<AppState>,
@@ -49,6 +53,7 @@ async fn update_task(
     }
 }
 
+// End point for deleting task info for a given task id.
 #[delete("/delete_task/{task_id}")]
 async fn delete_task(db: web::Data<AppState>, path: web::Path<TaskId>) -> impl Responder {
     let task_id = path.into_inner();
@@ -59,6 +64,7 @@ async fn delete_task(db: web::Data<AppState>, path: web::Path<TaskId>) -> impl R
     }
 }
 
+// Add all end point service to app service config
 pub fn config(conf: &mut web::ServiceConfig) {
     let scope = web::scope("")
         .service(home)
