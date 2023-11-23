@@ -2,7 +2,7 @@ mod controller;
 mod model;
 mod primitives;
 mod service;
-use actix_web::{delete, get, post, put, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{web, App, HttpServer};
 use dotenv::dotenv;
 use primitives::*;
 use sqlx::{postgres::PgPool, Pool, Postgres};
