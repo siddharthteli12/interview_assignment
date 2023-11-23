@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Deserialize, Serialize, sqlx::FromRow)]
 #[allow(non_snake_case)]
 pub struct UserModel {
-    pub user_id: i32,
+    pub user_mail: String,
     pub first_name: String,
     pub second_name: String,
     #[serde(rename = "createdAt")]
@@ -16,7 +16,7 @@ pub struct UserModel {
 pub struct TaskModel {
     pub task_id: i32,
     pub task_description: String,
-    pub user_id: i32,
+    pub user_mail: String,
     #[serde(rename = "createdAt")]
     pub created_at: Option<chrono::DateTime<chrono::Utc>>,
     #[serde(rename = "updatedAt")]

@@ -24,7 +24,8 @@ pub async fn create_user_in_db(
 ) -> Result<UserModel, sqlx::Error> {
     sqlx::query_as!(
         UserModel,
-        "INSERT INTO users (first_name, second_name) VALUES ($1, $2) RETURNING *",
+        "INSERT INTO users (user_mail, first_name, second_name) VALUES ($1, $2, $3) RETURNING *",
+        user_info.user_mail.to_owned(),
         user_info.first_name.to_owned(),
         user_info.second_name.to_owned(),
     )
@@ -38,8 +39,8 @@ pub async fn create_task_in_db(
 ) -> Result<TaskModel, sqlx::Error> {
     sqlx::query_as!(
         TaskModel,
-        "INSERT INTO tasks (user_id, task_description) VALUES ($1, $2) RETURNING *",
-        user_info.user_id.to_owned(),
+        "INSERT INTO tasks (user_mail, task_description) VALUES ($1, $2) RETURNING *",
+        user_info.user_mail.to_owned(),
         user_info.task_des.to_owned(),
     )
     .fetch_one(db)
