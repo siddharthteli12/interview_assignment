@@ -3,6 +3,7 @@ mod model;
 mod primitives;
 mod service;
 use actix_web::{web, App, HttpServer};
+use controller::*;
 use dotenv::dotenv;
 use primitives::*;
 use sqlx::{postgres::PgPool, Pool, Postgres};
@@ -14,7 +15,6 @@ pub struct AppState {
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
     env_logger::init();
-
     let db_url = std::env::var("DATABASE_URL").expect("DB URL is not set");
     let pool = PgPool::connect(&db_url)
         .await
@@ -23,9 +23,9 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(AppState { db: pool.clone() }))
-            .configure(controller::config)
+            .configure(config)
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind(("127.0.0.1", 8081))?
     .run()
     .await
 }

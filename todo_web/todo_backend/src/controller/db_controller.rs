@@ -25,8 +25,8 @@ async fn read_task(db: web::Data<AppState>, path: web::Path<TaskId>) -> impl Res
     }
 }
 
-#[post("/add_task")]
-async fn add_task(
+#[post("/create_task")]
+async fn create_task(
     db: web::Data<AppState>,
     user_info: web::Query<CreateUserTask>,
 ) -> impl Responder {
@@ -60,10 +60,11 @@ async fn delete_task(db: web::Data<AppState>, path: web::Path<TaskId>) -> impl R
 }
 
 pub fn config(conf: &mut web::ServiceConfig) {
-    let scope = web::scope("/api")
+    let scope = web::scope("")
         .service(home)
+        .service(create_user)
         .service(read_task)
-        .service(add_task)
+        .service(create_task)
         .service(update_task)
         .service(delete_task);
 

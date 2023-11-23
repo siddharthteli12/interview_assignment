@@ -3,7 +3,7 @@ use crate::{
     CreateUser, CreateUserTask, Pool, Postgres, UpdateUserTask,
 };
 use chrono::prelude::*;
-use sqlx::postgres::PgRow;
+use sqlx::postgres::PgQueryResult;
 
 pub async fn read_task_from_db(
     db: &Pool<Postgres>,
@@ -73,8 +73,11 @@ pub async fn update_task_in_db(
     .await
 }
 
-pub async fn delete_task_from_db(db: &Pool<Postgres>, task_id: i32) -> Result<PgRow, sqlx::Error> {
+pub async fn delete_task_from_db(
+    db: &Pool<Postgres>,
+    task_id: i32,
+) -> Result<PgQueryResult, sqlx::Error> {
     sqlx::query_as!(TaskModel, "DELETE FROM tasks WHERE task_id = $1", task_id)
-        .fetch_one(db)
+        .execute(db)
         .await
 }
