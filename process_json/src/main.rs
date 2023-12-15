@@ -1,5 +1,6 @@
 use std::{
     env,
+    time::Instant,
     fs::File,
     io::{self, BufReader, BufWriter, Read, Write},
 };
@@ -54,6 +55,7 @@ fn main() {
     } else {
         Box::new(BufWriter::with_capacity(BUFFER_SIZE, io::stdout()))
     };
-
+    let now = Instant::now();
     process_json(input, output).expect("Unable to process json file");
+    println!("Time elapsed - {:?}", now.elapsed());
 }
